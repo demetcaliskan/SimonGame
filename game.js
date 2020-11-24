@@ -1,14 +1,29 @@
-var level = 0;
+var level;
 var buttonColors = ["red", "blue", "green", "yellow"];
 var gamePattern = [];
 var userClickedPattern = [];
+var isGameOver = false;
 
 $(document).keydown(function() {
-  $("h1").text("Level " + level);
-  nextSequence();
+  if(!isGameOver) {
+    level = 0;
+    $("h1").text("Level " + level);
+    nextSequence();
+  }
+});
+
+$(".btn").click(function() {
+  var userChosenColor = $(this).attr("id");
+  userClickedPattern.push(userChosenColor);
+
+  playSound(userChosenColor);
+  animatePressed(userChosenColor);
+
+  checkAnswer(userClickedPattern.length - 1);
 });
 
 function nextSequence() {
+  isGameOver = true;
   level++;
   userClickedPattern = [];
 
@@ -34,18 +49,24 @@ function checkAnswer(currentLevel) {
     console.log(gamePattern[currentLevel] + "!=" + userClickedPattern[currentLevel])
     console.log("wrong");
     console.log("Current level: " + currentLevel);
+    GameOver();
   }
 }
 
-$(".btn").click(function() {
-  var userChosenColor = $(this).attr("id");
-  userClickedPattern.push(userChosenColor);
+function GameOver() {
+  isGameOver = false;
+  gamePattern = [];
 
-  playSound(userChosenColor);
-  animatePressed(userChosenColor);
+  playSound("wrong");
 
-  checkAnswer(userClickedPattern.length - 1);
-});
+  $("body").addClass("game-over");
+  setTimeout(function() {
+    $("body").removeClass("game-over");
+  }, 100);
+
+  $("h1").text("Game Over, Press Any Key to Restart");
+
+}
 
 function playSound(name) {
   var audio = new Audio("sounds/" + name + ".mp3");
